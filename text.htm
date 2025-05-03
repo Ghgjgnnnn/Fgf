@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استطلاعات الرأي الدينية والاجتماعية</title>
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .poll-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+        }
+        
+        .options-container {
+            margin: 20px 0;
+        }
+        
+        .option {
+            background-color: #fff;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .option.voted {
+            background-color: #e1f5fe;
+            border-color: #4fc3f7;
+        }
+        
+        .option.selected {
+            background-color: #b3e5fc;
+            border-color: #0288d1;
+        }
+        
+        .percentage-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .percentage-fill {
+            height: 100%;
+            background-color: #0288d1;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .poll-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .share-btn {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .share-btn:hover {
+            background-color: #3367d6;
+        }
+        
+        .create-poll {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        #add-option, #create-poll, #send-message {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        #add-option:hover, #create-poll:hover, #send-message:hover {
+            background-color: #3d8b40;
+        }
+        
+        #add-option {
+            background-color: #2196f3;
+        }
+        
+        #add-option:hover {
+            background-color: #0b7dda;
+        }
+        
+        .poll-list {
+            margin-top: 30px;
+        }
+        
+        .poll-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .poll-item:hover {
+            background-color: #f0f0f0;
+        }
+        
+        /* أنماط قسم الدردشة */
+        .chat-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border: 1px solid #eee;
+        }
+        
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            background-color: #e3f2fd;
+            max-width: 80%;
+        }
+        
+        .message.sent {
+            background-color: #c8e6c9;
+            margin-right: 0;
+            margin-left: auto;
+        }
+        
+        .message-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #555;
+            margin-bottom: 3px;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #message-input {
+            flex-grow: 1;
+            min-height: 50px;
+        }
+        
+        #username {
+            width: 150px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>استطلاعات الرأي الدينية والاجتماعية</h1>
+        
+        <div class="poll-container">
+            <h2 id="poll-question">جاري تحميل السؤال...</h2>
+            <div id="poll-options" class="options-container">
+                <!-- سيتم ملؤه ديناميكيًا -->
+            </div>
+            <div class="poll-meta">
+                <span id="total-votes">0 أصوات</span>
+                <button id="share-btn" class="share-btn">مشاركة</button>
+            </div>
+        </div>
+        
+        <div class="create-poll">
+            <h2>إنشاء استطلاع جديد</h2>
+            <input type="text" id="new-question" placeholder="ادخل سؤال الاستطلاع">
+            <div id="option-inputs">
+                <input type="text" placeholder="ادخل الخيار الأول">
+                <input type="text" placeholder="ادخل الخيار الثاني">
+            </div>
+            <button id="add-option">إضافة خيار</button>
+            <button id="create-poll">إنشاء الاستطلاع</button>
+        </div>
+        
+        <div class="poll-list">
+            <h2>استطلاعات سابقة</h2>
+            <div id="previous-polls">
+                <!-- سيتم ملؤه ديناميكيًا -->
+            </div>
+        </div>
+        
+        <!-- قسم الدردشة المضاف -->
+        <div class="chat-container">
+            <h2>منتدى النقاش</h2>
+            <div class="chat-messages" id="chat-messages">
+                <!-- سيتم ملؤه ديناميكيًا -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="username" placeholder="اسمك" value="">
+                <textarea id="message-input" placeholder="اكتب رسالتك هنا..."></textarea>
+                <button id="send-message">إرسال</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // تكوين Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsy8BG2KBlBRHLliSdXlkPxhdHMJwoOyw",
+            authDomain: "gpt-25924.firebaseapp.com",
+            projectId: "gpt-25924",
+            storageBucket: "gpt-25924.appspot.com",
+            messagingSenderId: "50850855499",
+            appId: "1:50850855499:web:4992791ff81e5c71712bce",
+            measurementId: "G-SHL29LL3TE",
+            databaseURL: "https://gpt-25924-default-rtdb.firebaseio.com/"
+        };
+
+        // تهيئة Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // متغيرات التطبيق
+        let currentPollId = null;
+        let polls = {};
+        let username = localStorage.getItem('chat_username') || '';
+        
+        // DOM Elements
+        const pollQuestionEl = document.getElementById('poll-question');
+        const pollOptionsEl = document.getElementById('poll-options');
+        const totalVotesEl = document.getElementById('total-votes');
+        const shareBtn = document.getElementById('share-btn');
+        const newQuestionEl = document.getElementById('new-question');
+        const optionInputsEl = document.getElementById('option-inputs');
+        const addOptionBtn = document.getElementById('add-option');
+        const createPollBtn = document.getElementById('create-poll');
+        const previousPollsEl = document.getElementById('previous-polls');
+        const chatMessagesEl = document.getElementById('chat-messages');
+        const messageInputEl = document.getElementById('message-input');
+        const usernameInputEl = document.getElementById('username');
+        const sendMessageBtn = document.getElementById('send-message');
+        
+        // تهيئة اسم المستخدم إذا كان محفوظاً
+        if (username) {
+            usernameInputEl.value = username;
+        }
+        
+        // استمع لتغيرات قاعدة البيانات للاستطلاعات
+        database.ref('polls').on('value', (snapshot) => {
+            polls = snapshot.val() || {};
+            renderPollsList();
+            
+            // إذا لم يكن هناك استطلاع معروض حالياً، اعرض آخر استطلاع
+            if (!currentPollId && Object.keys(polls).length > 0) {
+                loadPoll(Object.keys(polls)[0]);
+            }
+        });
+        
+        // استمع للرسائل الجديدة في الدردشة
+        database.ref('chat_messages').limitToLast(50).on('value', (snapshot) => {
+            const messages = snapshot.val() || {};
+            renderChatMessages(messages);
+        });
+        
+        // عرض الرسائل في الدردشة
+        function renderChatMessages(messages) {
+            chatMessagesEl.innerHTML = '';
+            
+            Object.entries(messages).forEach(([key, message]) => {
+                const messageEl = document.createElement('div');
+                const isCurrentUser = message.username === username;
+                
+                messageEl.className = `message ${isCurrentUser ? 'sent' : ''}`;
+                messageEl.innerHTML = `
+                    <div class="message-info">
+                        <span>${message.username || 'مجهول'}</span>
+                        <span>${formatTime(message.timestamp)}</span>
+                    </div>
+                    <div>${message.text}</div>
+                `;
+                
+                chatMessagesEl.appendChild(messageEl);
+            });
+            
+            // التمرير إلى الأسفل لعرض أحدث الرسائل
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+        }
+        
+        // تنسيق الوقت
+        function formatTime(timestamp) {
+            if (!timestamp) return '';
+            
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('ar-EG', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // عرض قائمة الاستطلاعات السابقة
+        function renderPollsList() {
+            previousPollsEl.innerHTML = '';
+            
+            Object.entries(polls).forEach(([pollId, poll]) => {
+                const pollEl = document.createElement('div');
+                pollEl.className = 'poll-item';
+                pollEl.textContent = poll.question;
+                pollEl.addEventListener('click', () => loadPoll(pollId));
+                
+                previousPollsEl.appendChild(pollEl);
+            });
+        }
+        
+        // تحميل استطلاع معين
+        function loadPoll(pollId) {
+            currentPollId = pollId;
+            const poll = polls[pollId];
+            
+            pollQuestionEl.textContent = poll.question;
+            pollOptionsEl.innerHTML = '';
+            
+            let totalVotes = 0;
+            Object.values(poll.options).forEach(opt => {
+                totalVotes += opt.votes || 0;
+            });
+            
+            totalVotesEl.textContent = `${totalVotes} أصوات`;
+            
+            // تحقق إذا كان المستخدم قد صوت مسبقاً
+            const userVote = localStorage.getItem(`poll_${pollId}_vote`);
+            
+            Object.entries(poll.options).forEach(([optionId, option]) => {
+                const percentage = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
+                
+                const optionEl = document.createElement('div');
+                optionEl.className = `option ${userVote === optionId ? 'voted' : ''}`;
+                optionEl.innerHTML = `
+                    <span>${option.text}</span>
+                    <span>${percentage}% (${option.votes || 0})</span>
+                    <div class="percentage-bar">
+                        <div class="percentage-fill" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                
+                if (!userVote) {
+                    optionEl.addEventListener('click', () => voteForOption(pollId, optionId));
+                }
+                
+                pollOptionsEl.appendChild(optionEl);
+            });
+        }
+        
+        // التصويت على خيار
+        function voteForOption(pollId, optionId) {
+            // تحقق من التصويت المسبق
+            if (localStorage.getItem(`poll_${pollId}_vote`)) {
+                alert('لقد قمت بالتصويت مسبقاً في هذا الاستطلاع!');
+                return;
+            }
+            
+            // تحديث قاعدة البيانات
+            const updates = {};
+            updates[`polls/${pollId}/options/${optionId}/votes`] = (polls[pollId].options[optionId].votes || 0) + 1;
+            
+            database.ref().update(updates)
+                .then(() => {
+                    // حفظ التصويت في localStorage
+                    localStorage.setItem(`poll_${pollId}_vote`, optionId);
+                    
+                    // إعادة تحميل الاستطلاع
+                    loadPoll(pollId);
+                })
+                .catch(error => {
+                    console.error('Error voting:', error);
+                    alert('حدث خطأ أثناء التصويت، يرجى المحاولة مرة أخرى.');
+                });
+        }
+        
+        // إضافة خيار جديد في نموذج الإنشاء
+        addOptionBtn.addEventListener('click', () => {
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.placeholder = 'ادخل خيار جديد';
+            optionInputsEl.appendChild(newInput);
+        });
+        
+        // إنشاء استطلاع جديد
+        createPollBtn.addEventListener('click', () => {
+            const question = newQuestionEl.value.trim();
+            const options = Array.from(optionInputsEl.querySelectorAll('input'))
+                .map(input => input.value.trim())
+                .filter(text => text.length > 0);
+            
+            if (question.length < 5) {
+                alert('الرجاء إدخال سؤال واضح للاستطلاع');
+                return;
+            }
+            
+            if (options.length < 2) {
+                alert('الرجاء إدخال خيارين على الأقل');
+                return;
+            }
+            
+            const pollData = {
+                question,
+                options: {},
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            options.forEach((opt, index) => {
+                pollData.options[`opt${index}`] = {
+                    text: opt,
+                    votes: 0
+                };
+            });
+            
+            // إضافة الاستطلاع إلى قاعدة البيانات
+            const newPollRef = database.ref('polls').push();
+            newPollRef.set(pollData)
+                .then(() => {
+                    alert('تم إنشاء الاستطلاع بنجاح!');
+                    newQuestionEl.value = '';
+                    optionInputsEl.innerHTML = `
+                        <input type="text" placeholder="ادخل الخيار الأول">
+                        <input type="text" placeholder="ادخل الخيار الثاني">
+                    `;
+                    
+                    // تحميل الاستطلاع الجديد
+                    loadPoll(newPollRef.key);
+                })
+                .catch(error => {
+                    console.error('Error creating poll:', error);
+                    alert('حدث خطأ أثناء إنشاء الاستطلاع');
+                });
+        });
+        
+        // إرسال رسالة جديدة
+        sendMessageBtn.addEventListener('click', sendMessage);
+        messageInputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        function sendMessage() {
+            const messageText = messageInputEl.value.trim();
+            username = usernameInputEl.value.trim();
+            
+            if (!username) {
+                alert('الرجاء إدخال اسم المستخدم');
+                return;
+            }
+            
+            if (!messageText) {
+                alert('الرجاء إدخال نص الرسالة');
+                return;
+            }
+            
+            // حفظ اسم المستخدم في localStorage
+            localStorage.setItem('chat_username', username);
+            
+            // إرسال الرسالة إلى Firebase
+            database.ref('chat_messages').push({
+                username: username,
+                text: messageText,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            })
+            .then(() => {
+                messageInputEl.value = '';
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+                alert('حدث خطأ أثناء إرسال الرسالة');
+            });
+        }
+        
+        // مشاركة الاستطلاع
+        shareBtn.addEventListener('click', () => {
+            if (!currentPollId) return;
+            
+            const pollUrl = `${window.location.origin}${window.location.pathname}?poll=${currentPollId}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: polls[currentPollId].question,
+                    text: 'شارك في هذا الاستطلاع:',
+                    url: pollUrl
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                    copyToClipboard(pollUrl);
+                });
+            } else {
+                copyToClipboard(pollUrl);
+            }
+        });
+        
+        // نسخ الرابط إلى الحافظة
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('تم نسخ رابط الاستطلاع إلى الحافظة: ' + text);
+        }
+        
+        // تحميل استطلاع من رابط URL
+        function checkUrlForPoll() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pollId = urlParams.get('poll');
+            
+            if (pollId && polls[pollId]) {
+                loadPoll(pollId);
+            }
+        }
+        
+        // عند تحميل الصفحة، تحقق من وجود استطلاع في الرابط
+        window.addEventListener('load', checkUrlForPoll);
+    </script>
+</body>
+</html>
